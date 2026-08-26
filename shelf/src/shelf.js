@@ -672,7 +672,7 @@ async function chooseBackupFolder() {
   if (!supportsDirectoryBackup()) {
     // TRD §13 — say so plainly rather than offering a control that cannot work.
     $('backup-status').textContent =
-      'This browser cannot write to a folder. Use Download JSON and keep the file somewhere safe.';
+      'This browser cannot write to a folder. Use Download backup file and keep it somewhere safe.';
     return;
   }
   const handle = await pickBackupDirectory();
@@ -756,7 +756,7 @@ async function renderBackupStatus() {
         : `Backup folder ${where(handle)} is set. Nothing written yet.`;
   } else if (!supportsDirectoryBackup()) {
     status.textContent =
-      'This browser cannot write to a folder. Download JSON regularly instead.';
+      'This browser cannot write to a folder. Use Download backup file regularly instead.';
   } else {
     status.textContent =
       'No backup folder set — pick any folder and Shelf writes two files into it. ' +
@@ -931,17 +931,6 @@ function bind() {
   $('backup-download').addEventListener('click', () =>
     downloadJson(buildBackupJson(state.clips))
   );
-  $('backup-read').addEventListener('click', () => {
-    const html = buildExportHtml(state.clips, {
-      title: 'Shelf — full archive',
-    });
-    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = BACKUP_HTML_FILENAME;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  });
   $('backup-restore').addEventListener('click', () => $('restore-input').click());
   $('restore-input').addEventListener('change', (e) => {
     const file = e.target.files?.[0];

@@ -83,6 +83,42 @@ resolved at step 7.
 the worst outcome available in this product. That safety mechanism attaches to the sharing
 path specifically, so routing backup around it costs nothing.
 
+#### Amendment — 2026-08-26 — one export, and the backup stops calling itself one
+
+D4's split was right and stands: backup and share are different acts. What went wrong is
+that the UI stopped expressing it. By the time the footer was finished there were **three**
+buttons that produced a file, and two of them produced the same HTML:
+
+| Control | Output |
+|---|---|
+| `Export…` (header) | HTML, marked or everything |
+| `Download readable copy` (footer) | HTML, everything — i.e. `Export…` → everything |
+| `Download JSON` (footer) | `shelf-backup.json`, the restorable format |
+
+A user choosing between them was being asked to understand the JSON/HTML distinction
+before they could get their own words out of the product.
+
+**Decision:** exactly one export, and it is the header's `Export…` — HTML, keeping the
+marked/everything scope and its tally confirmation. `Download readable copy` is deleted; it
+was `Export…` → everything under another name.
+
+The JSON stays, because it is not an export and never was:
+
+- `Restore from file` reads it. Nothing else can produce its input.
+- Safari cannot write to a folder (`supportsDirectoryBackup()` returns false there), and
+  the app's own copy already tells those users to download it regularly. Removing it would
+  leave Safari with no backup path at all, against PRD §12's highest-severity risk.
+
+It is relabelled **Download backup file** and grouped under a `Backup` heading, so it reads
+as the safety net rather than a second export. The readable HTML copy still exists where it
+costs nothing — `writeBackup()` puts it in the backup folder beside the JSON, which is
+PRD principle 1's "Shelf no longer exists" case.
+
+**Rejected: dropping the marked/everything scope to simplify further.** The scope is not a
+preference, it is the guard PRD §8.4 requires — always-everything publishes a whole reading
+history by default, and always-marked produces confusing empty files. One export with one
+question is still one export.
+
 ### D5 — The `color` field stays in the schema; no picker until it is designed
 
 The canvas uses a single teal accent and has no colour-coding UI. PRD U9 and TRD §5.1 both

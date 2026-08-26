@@ -13,6 +13,7 @@ import {
   looksLikeAFilename,
 } from '../shelf/src/backup.js';
 import { buildExportHtml } from '../shelf/src/export.js';
+import { readFileSync } from 'node:fs';
 
 const clip = (over = {}) => ({
   id: 'id-1',
@@ -166,4 +167,49 @@ test('a folder named like a file is recognised', () => {
   for (const n of ['Documents', 'Shelf backups', 'my.clips.folder', '', null]) {
     assert.equal(looksLikeAFilename(n), false, String(n));
   }
+});
+
+/* ------------------------------------------------------------------ *
+ * One export — DECISIONS.md D4, 2026-08-26 amendment
+ * ------------------------------------------------------------------ */
+
+test('exactly one control in the shelf page produces an export', () => {
+  // The regression this guards against is additive and therefore easy: someone adds a
+  // convenient "download everything" link, and now the user has to understand the
+  // JSON/HTML distinction before they can get their own words out. It happened once
+  // already — `Download readable copy` was `Export…` → everything under another name.
+  //
+  // Backup controls are exempt by design: a backup is not an export (D4). They are
+  // identified by their `backup-` id prefix, which is also what groups them in the UI.
+  // The export dialog's own confirm button is part of that one flow, not a rival entry
+  // point, so the dialog is removed before counting.
+  const html = readFileSync('shelf/src/shelf.html', 'utf8')
+    .replace(/<dialog id="exportdlg">[\s\S]*?<\/dialog>/, '');
+  const buttons = [...html.matchAll(/<button[^>]*id="([^"]+)"[^>]*>([^<]*)</g)]
+    .map(([, id, label]) => ({ id, label: label.trim() }));
+
+  const exporters = buttons.filter(
+    (b) => /export|download/i.test(b.id + ' ' + b.label) && !b.id.startsWith('backup-')
+  );
+  assert.deepEqual(exporters.map((b) => b.id), ['export'],
+    'the header Export… button must be the only export in the page');
+});
+
+test('the backup group never offers a second readable download', () => {
+  // The readable HTML copy still exists — writeBackup() puts it in the backup folder
+  // beside the JSON, which is the "Shelf no longer exists" case. What must not come back
+  // is a BUTTON for it, duplicating the export.
+  const html = readFileSync('shelf/src/shelf.html', 'utf8');
+  assert.doesNotMatch(html, /id="backup-read"/,
+    'a second HTML download has reappeared in the footer');
+  assert.match(html, /id="backup-download"[^>]*>Download backup file</,
+    'the JSON download must read as a backup, not an export');
+});
+
+test('the readable copy still travels with the folder backup', () => {
+  // Deleting the button must not have deleted the file. This is the half of PRD
+  // principle 1 that survives Shelf itself disappearing.
+  const shelf = readFileSync('shelf/src/shelf.js', 'utf8');
+  assert.match(shelf, /writeBackup\(handle, buildBackupJson\(state\.clips\), html\)/,
+    'runBackup must still write the JSON and the HTML as a pair');
 });

@@ -63,15 +63,19 @@
 
   <footer>
     <p class="foot-line">Everything on this page lives in this browser only. No account, no sync, no server.</p>
+    <!-- Backup, NOT export. There is exactly one export in this product and it is the
+         Export… button in the header; everything below is the safety net. The two used
+         to be indistinguishable — a footer full of Download buttons, one of which
+         produced the same HTML the export did. See DECISIONS.md D4's 2026-08-26
+         amendment. -->
+    <p class="foot-label">Backup</p>
     <p class="foot-line" id="backup-status">Checking backup…</p>
     <p class="foot-line">
       <button class="link-btn" id="backup-choose" type="button">Choose backup folder</button>
       <span class="sep">·</span>
       <button class="link-btn" id="backup-now" type="button">Back up now</button>
       <span class="sep">·</span>
-      <button class="link-btn" id="backup-download" type="button">Download JSON</button>
-      <span class="sep">·</span>
-      <button class="link-btn" id="backup-read" type="button">Download readable copy</button>
+      <button class="link-btn" id="backup-download" type="button">Download backup file</button>
       <span class="sep">·</span>
       <button class="link-btn" id="backup-restore" type="button">Restore from file</button>
       <input type="file" id="restore-input" accept="application/json,.json" hidden>

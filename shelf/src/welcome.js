@@ -55,7 +55,7 @@ async function chooseFolder() {
   if (!supportsDirectoryBackup()) {
     // Expected on Safari. Say so rather than leaving a button that cannot work.
     $('backup-status').textContent =
-      'This browser cannot write to a folder. Use "Download JSON" on the shelf instead, and keep the file somewhere safe.';
+      'This browser cannot write to a folder. Use "Download backup file" on the shelf instead, and keep it somewhere safe.';
     revealConfirm();
     return;
   }
