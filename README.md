@@ -10,8 +10,8 @@ No account. No server. **No network requests of any kind.**
 
 ## Status
 
-Pre-alpha. Building against the order in [TRD §18](TRD.md#18-build-order); progress in
-[BUILD_PLAN.md](BUILD_PLAN.md).
+v1.0.0 — feature complete and in use. Not yet in the Chrome Web Store, so installing means
+**Load unpacked** for now; see *Running it* below. 107 tests pass with `npm test`.
 
 ## Hard constraints
 
@@ -29,9 +29,13 @@ These are load-bearing, not preferences:
 
 ```
 shelf/          <- the extension; Load unpacked points HERE
-PRD.md          product requirements
-TRD.md          technical requirements
-BUILD_PLAN.md   build order and acceptance checks
+  manifest.json
+  src/          background worker, save bar, shelf page, popup
+  icons/  fonts/
+test/           node --test, no dependencies
+tools/          pack.sh — builds the store zip
+design/         the design canvas the palette is taken from
+store/          privacy policy
 ```
 
 ## Running it

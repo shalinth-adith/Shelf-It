@@ -1,7 +1,7 @@
 # macOS
 .DS_Store
 
-# Dev-only tooling. There are NO runtime dependencies — see TRD §3.
+# Dev-only tooling. There are NO runtime dependencies.
 node_modules/
 
 # Claude Code local session state
@@ -13,3 +13,12 @@ shelf-safari/
 # Packaged store builds
 *.zip
 dist/
+
+# Planning and process docs. Kept on the machine, deliberately off GitHub: someone who
+# downloads this repo should get the extension and the instructions to run it, nothing
+# else. These are how the product was specified and shipped, not how it is used.
+PRD.md
+TRD.md
+BUILD_PLAN.md
+DECISIONS.md
+STORE_SUBMISSION.md

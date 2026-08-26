@@ -1,5 +1,6 @@
 /**
- * Shelf — self-hosted typeface. DECISIONS.md D1.
+ * Shelf — self-hosted typeface. Bundled, never fetched: a remote font is a
+ * network request, and this extension makes none.
  *
  * The design canvas links this from fonts.googleapis.com. That is a network request, so
  * the file is bundled and served from the extension's own origin instead. Nothing here

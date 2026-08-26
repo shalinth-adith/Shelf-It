@@ -170,7 +170,7 @@ test('a folder named like a file is recognised', () => {
 });
 
 /* ------------------------------------------------------------------ *
- * One export — DECISIONS.md D4, 2026-08-26 amendment
+ * One export
  * ------------------------------------------------------------------ */
 
 test('exactly one control in the shelf page produces an export', () => {
