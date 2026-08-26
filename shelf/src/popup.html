@@ -54,6 +54,17 @@
       <button class="ghost" id="open">Open shelf</button>
     </div>
     <p class="sub tiny" id="hint">Saved to this browser only</p>
+
+    <!-- The way out of the save bar, put where the user is when it annoys them: on the
+         page itself, one click from the toolbar. Burying it in a settings screen means
+         the only discoverable remedy is uninstalling. -->
+    <div class="setting">
+      <button class="switch" id="bar-toggle" type="button" role="switch" aria-checked="true">
+        <span>Save bar on <span id="bar-host"></span></span>
+        <span class="track" aria-hidden="true"><i></i></span>
+      </button>
+      <p class="sub tiny" id="bar-note"></p>
+    </div>
   </section>
 
   <!-- After a save. -->

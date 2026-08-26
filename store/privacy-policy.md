@@ -13,8 +13,11 @@ What Shelf stores, and where
 
 Passages you save, along with their source URL, page title, the time you saved them, and
 any note or colour you add, are stored in your browser's local IndexedDB storage on your
-own computer. Two small preferences — your theme choice and default clip colour — are
-stored in your browser's extension storage. None of this is transmitted anywhere.
+own computer. A few small preferences — your theme choice, your default clip colour, and
+your save-bar settings — are stored in your browser's extension storage. The save-bar
+settings include the names of any sites you have switched the save bar off on; that list
+exists only so the bar knows to stay away, and like everything else here it never leaves
+your machine. None of this is transmitted anywhere.
 
 Files you create
 

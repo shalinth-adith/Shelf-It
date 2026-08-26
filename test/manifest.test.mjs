@@ -259,6 +259,26 @@ test('onboarding and popup are reachable and complete', () => {
   }
 });
 
+test('every element id a page script reaches for exists in its markup', () => {
+  // document.getElementById returns null for a typo, and every call site here is either
+  // `.textContent = ` or `.addEventListener(` — both of which throw inside whatever
+  // handler they were in, taking the rest of that function with them. A mistyped id in
+  // markup that never renders in a unit test is otherwise found by a user.
+  for (const [script, markup] of [
+    ['popup.js', 'popup.html'],
+    ['shelf.js', 'shelf.html'],
+    ['welcome.js', 'welcome.html'],
+  ]) {
+    const html = readFileSync(join(EXT, 'src', markup), 'utf8');
+    const ids = new Set([...html.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+    const used = new Set(
+      [...code(join(EXT, 'src', script)).matchAll(/\$\('([^']+)'\)/g)].map((m) => m[1])
+    );
+    assert.deepEqual([...used].filter((id) => !ids.has(id)), [],
+      `${script} reaches for ids that ${markup} does not define`);
+  }
+});
+
 test('onboarding cannot be skipped past the backup screen by a single click', () => {
   // PRD §9: screen 2 "is not skippable without either configuring a backup or explicitly
   // dismissing a you-have-no-backup warning". The dismissal must cost more than the

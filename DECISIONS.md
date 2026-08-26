@@ -276,3 +276,67 @@ Not covered by the canvas. Each is resolved at its build step, not now.
 `manifest.json` lives in `shelf/`, not at the repo root, so PRD.md, TRD.md, BUILD_PLAN.md,
 this file, `design/`, and `.claude/` are never packaged into a store submission. Matches
 TRD §4.1's tree and lets §17's `xcrun safari-web-extension-converter shelf/` run unmodified.
+
+---
+
+## 2026-08-26 — The save bar has an off switch
+
+The bar is the one part of Shelf that appears uninvited on someone else's page. Users
+reported it as stressful rather than useful on sites where they select text constantly —
+a YouTube title, a search field's neighbours, anywhere reading involves dragging a cursor.
+PRD principle 5 says the bar must not hijack the page; without a way to switch it off, the
+only remedy a user has is uninstalling.
+
+### D7 — Two settings, not one: per-site exceptions under a global master
+
+`storage.local.barEnabled` (boolean, absent means on) turns the bar off everywhere.
+`storage.local.barOffSites` (array of site keys, absent means none) turns it off on named
+sites only. The master wins: with `barEnabled: false` the per-site switch is inert and says
+so.
+
+An off-LIST rather than an on-list, so a site granted tomorrow gets the bar without
+anything having been written for it today. Defaults are therefore "absent" for both keys,
+and a fresh profile behaves exactly as it did before this decision.
+
+The site key is the hostname minus a leading `www.` — `domainOf()` in `util.js`, and the
+same expression inlined in `content.js`, which cannot import. `m.youtube.com` is
+deliberately a different key from `youtube.com`: they are different reading experiences and
+merging them would surprise whoever switched one off.
+
+**Rejected: revoking the host permission instead.** It already removes the bar and needs no
+new state — but it also removes the excerpt ladder, the page-save button, and the clip
+count for that site. Turning off a button should not cost the user three features.
+
+**Rejected: unregistering the content script per origin.** `registerContentScripts` matches
+are a single list rebuilt from `permissions.getAll()`; adding a second source of truth to it
+means the bar's visibility depends on two systems agreeing, and a stale registration is
+invisible until someone selects text. The gate lives inside `content.js` instead, where it
+is one boolean.
+
+### D8 — The switch is on the popup, not in a settings screen
+
+Named after the site it governs ("Save bar on youtube.com"), one click from the toolbar —
+the user is already on the page that annoyed them. A settings screen would be the wrong
+distance away from the problem, and there is no options page to put one in.
+
+The shelf page footer carries the master switch and, more importantly, the list of
+per-site exceptions with a reset. A site switched off in the popup is otherwise invisible
+from everywhere except that site, and "the bar stopped appearing on one blog" would have no
+answer anywhere in the product.
+
+### D9 — Off is never a dead end
+
+Every note under both switches names the context menu: right-click → **Save selection to
+Shelf** needs no content script and no host permission (TRD §9.1), so switching the bar off
+costs the button, not the product. Copy that omits this turns a preference into "I have
+disabled the extension".
+
+`content.js` reads both keys directly from `storage.local` and watches `storage.onChanged`,
+rather than asking the worker. A round trip would wake a torn-down service worker on every
+page load for a boolean, and the live listener is what makes a flipped switch reach tabs
+that are already open — without it the user turns the bar off, returns to their tab, selects
+a word, and it appears anyway, which reads as a broken switch.
+
+`barOn` starts `null` (unknown) and suppresses the bar until the first read resolves. A
+default of `true` would flash the bar on precisely the site it was switched off for, which
+is the whole complaint.

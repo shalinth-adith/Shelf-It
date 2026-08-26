@@ -780,6 +780,96 @@ async function renderBackupStatus() {
 }
 
 /* ================================================================== *
+ * The save bar
+ *
+ * The master switch, plus the undo for the popup's per-site switches. Both settings live
+ * in storage.local and are read by content.js directly, so a write here reaches every
+ * open tab through storage.onChanged — no reload, no message to the worker.
+ * ================================================================== */
+
+let barEnabled = true;
+let barOffSites = [];
+
+async function initBarSwitch() {
+  try {
+    const stored = await chrome.storage.local.get(['barEnabled', 'barOffSites']);
+    barEnabled = stored.barEnabled !== false;
+    barOffSites = Array.isArray(stored.barOffSites) ? stored.barOffSites : [];
+  } catch {
+    /* both defaults are already correct */
+  }
+  renderBarSwitch();
+}
+
+/** "youtube.com", "youtube.com and 1 other", "youtube.com and 4 others". */
+function siteList(sites) {
+  const [first, ...rest] = sites;
+  if (!rest.length) return first;
+  return rest.length === 1 ? `${first} and 1 other` : `${first} and ${rest.length} others`;
+}
+
+function renderBarSwitch() {
+  $('bar-master').setAttribute('aria-checked', String(barEnabled));
+  $('bar-master-note').textContent = barEnabled
+    ? 'Appears when you select text on a site you have allowed.'
+    : 'Off everywhere. Right-click → Save selection to Shelf still works.';
+
+  // Hidden while the master is off: per-site exceptions to a thing that is off
+  // everywhere are noise, and reading them as live settings would be wrong.
+  const hasExceptions = barEnabled && barOffSites.length > 0;
+  $('bar-sites-line').hidden = !hasExceptions;
+  if (hasExceptions) $('bar-sites').textContent = `Off on ${siteList(barOffSites)}`;
+}
+
+/**
+ * @param {object} patch  the storage keys to write
+ * @param {function} apply  applies the same change to module state
+ */
+async function writeBarSetting(patch, apply) {
+  const previous = { barEnabled, barOffSites };
+  apply();
+  renderBarSwitch();     // painted first; a switch that waits on storage feels broken
+  try {
+    await chrome.storage.local.set(patch);
+    log('save bar', barEnabled ? 'on' : 'off', `— ${barOffSites.length} site(s) excepted`);
+  } catch (err) {
+    // Nothing persisted, so the control is now lying about the state. Put it back.
+    log('save bar setting failed', err?.message);
+    ({ barEnabled, barOffSites } = previous);
+    renderBarSwitch();
+  }
+}
+
+function toggleBarMaster() {
+  const next = !barEnabled;
+  writeBarSetting({ barEnabled: next }, () => { barEnabled = next; });
+}
+
+/**
+ * Clears every per-site exception. Deliberately does NOT touch the master — the two are
+ * separate settings and folding them together would surprise whoever turned the master
+ * off on purpose.
+ */
+function clearBarOffSites() {
+  writeBarSetting({ barOffSites: [] }, () => { barOffSites = []; });
+}
+
+/**
+ * The popup writes the same two keys, and it can be used while this tab sits open behind
+ * it. Without this the footer keeps claiming the bar is on everywhere after the user has
+ * just switched it off on a site.
+ */
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  if ('barEnabled' in changes) barEnabled = changes.barEnabled.newValue !== false;
+  if ('barOffSites' in changes) {
+    const next = changes.barOffSites.newValue;
+    barOffSites = Array.isArray(next) ? next : [];
+  }
+  if ('barEnabled' in changes || 'barOffSites' in changes) renderBarSwitch();
+});
+
+/* ================================================================== *
  * Theme
  * ================================================================== */
 
@@ -832,6 +922,8 @@ function bind() {
   }
 
   $('theme').addEventListener('click', toggleTheme);
+  $('bar-master').addEventListener('click', toggleBarMaster);
+  $('bar-sites-clear').addEventListener('click', clearBarOffSites);
   $('export').addEventListener('click', openExport);
   $('backup-choose').addEventListener('click', chooseBackupFolder);
   $('nobackup-setup').addEventListener('click', chooseBackupFolder);
@@ -907,6 +999,7 @@ function bind() {
 async function main() {
   bind();
   await initTheme();
+  await initBarSwitch();
   const t0 = performance.now();
   state.clips = await db.getAllClips();
   log(`loaded ${state.clips.length} clips in ${(performance.now() - t0).toFixed(1)}ms`);

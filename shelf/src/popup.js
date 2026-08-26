@@ -13,7 +13,7 @@
  * conclude the product is broken, only that this site is not connected yet.
  */
 
-import { domainInitial, collapseWhitespace } from './util.js';
+import { domainOf, domainInitial, collapseWhitespace } from './util.js';
 
 const log = (...a) => console.debug('[shelf:popup]', ...a);
 const $ = (id) => document.getElementById(id);
@@ -23,6 +23,18 @@ const STORAGE_WARN = 0.85;
 
 let tab = null;
 let pageState = null;
+
+/**
+ * Save-bar settings, mirrored from storage.local. This popup owns the per-site half;
+ * the master switch is on the shelf page.
+ *
+ * Read and written straight from here, like `theme` already is. There is no worker
+ * round trip because there is nothing for the worker to do — content.js watches
+ * storage.onChanged itself and every open tab updates on the write.
+ */
+let barEnabled = true;
+let barOffSites = [];
+let siteKey = '';
 
 function show(id) {
   for (const s of document.querySelectorAll('section')) s.hidden = s.id !== id;
@@ -92,12 +104,15 @@ async function init() {
   const url = tab?.url ?? '';
   const pattern = originPattern(url);
 
-  // Theme is shared with the shelf page (TRD §5.3).
+  // Theme is shared with the shelf page (TRD §5.3). One read, since the save-bar
+  // settings live in the same store and are needed on the same paint.
   try {
-    const { theme } = await chrome.storage.local.get('theme');
-    document.documentElement.dataset.theme = theme
+    const stored = await chrome.storage.local.get(['theme', 'barEnabled', 'barOffSites']);
+    document.documentElement.dataset.theme = stored.theme
       || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  } catch { /* light is a safe default */ }
+    barEnabled = stored.barEnabled !== false;
+    barOffSites = Array.isArray(stored.barOffSites) ? stored.barOffSites : [];
+  } catch { /* light, and the bar on, are safe defaults */ }
 
   pageState = await chrome.runtime.sendMessage({ type: 'PAGE_STATE', payload: { url } });
   if (pageState?.ok) {
@@ -108,17 +123,20 @@ async function init() {
 
   if (!pattern) return show('s-restricted');
   if (!pageState?.granted) {
-    $('grant-host').textContent = new URL(url).hostname.replace(/^www\./, '');
+    $('grant-host').textContent = domainOf(url);
     return show('s-grant');
   }
   renderPage();
 }
 
 function renderPage() {
-  const host = new URL(tab.url).hostname.replace(/^www\./, '');
-  $('avatar').textContent = domainInitial(host);
-  $('domain').textContent = host;
-  $('title').textContent = tab.title || host;
+  // domainOf, not a second hand-rolled hostname strip. This exact string is the key the
+  // per-site switch writes and content.js matches on, so there must be one derivation.
+  siteKey = domainOf(tab.url);
+  $('avatar').textContent = domainInitial(siteKey);
+  $('domain').textContent = siteKey;
+  $('title').textContent = tab.title || siteKey;
+  renderBarSwitch();
 
   const n = pageState?.pageCount ?? 0;
   $('already').hidden = n === 0;
@@ -128,6 +146,61 @@ function renderPage() {
 
   show('s-page');
   $('note').focus();
+}
+
+/* ================================================================== *
+ * The save-bar switch
+ *
+ * PRD principle 5 — the bar must not hijack the page. A user who finds it intrusive on
+ * one site should be able to switch it off there without giving up the product, and
+ * without hunting through a settings screen. Hence: on the popup, named after the site
+ * it governs, one click from the toolbar.
+ *
+ * Off is never a dead end. Right-click → Save selection to Shelf needs no host
+ * permission and no content script (TRD §9.1), so every note below says so.
+ * ================================================================== */
+
+function barOnHere() {
+  return barEnabled && !barOffSites.includes(siteKey);
+}
+
+function renderBarSwitch() {
+  const on = barOnHere();
+  $('bar-host').textContent = siteKey;
+  $('bar-toggle').setAttribute('aria-checked', String(on));
+  // aria-disabled, not the disabled property: a control the master switch has overruled
+  // should still be reachable and announced, so its note can explain why it is stuck.
+  $('bar-toggle').setAttribute('aria-disabled', String(!barEnabled));
+  $('bar-note').textContent = !barEnabled
+    ? 'The save bar is off everywhere. Turn it back on in the shelf.'
+    : on
+      ? 'Appears when you select text. Right-click saves either way.'
+      : 'Off here. Right-click → Save selection to Shelf still works.';
+}
+
+async function toggleBarSite() {
+  // The master wins. Flipping this on would otherwise promise a bar that never appears.
+  if (!barEnabled) return;
+
+  const previous = barOffSites;
+  const off = new Set(barOffSites);
+  if (off.has(siteKey)) off.delete(siteKey);
+  else off.add(siteKey);
+  barOffSites = [...off];
+
+  // Painted before the write. A switch that waits for storage feels broken at the click,
+  // and the write is local and effectively instant.
+  renderBarSwitch();
+
+  try {
+    await chrome.storage.local.set({ barOffSites });
+    log('save bar', barOnHere() ? 'on' : 'off', 'for', siteKey);
+  } catch (err) {
+    // Nothing was persisted, so the switch is now lying. Put it back.
+    log('save bar toggle failed', err?.message);
+    barOffSites = previous;
+    renderBarSwitch();
+  }
 }
 
 /**
@@ -205,7 +278,7 @@ async function savePage() {
     ? `Saved · ${res.pageCount} from this page`
     : 'Saved to your library';
   $('saved-title').textContent = tab.title || '';
-  $('saved-meta').textContent = new URL(tab.url).hostname.replace(/^www\./, '')
+  $('saved-meta').textContent = domainOf(tab.url)
     + (excerpt.source === 'none' ? ' · no excerpt found' : '');
   show('s-saved');
 }
@@ -218,6 +291,7 @@ function openShelf() {
 $('grant').addEventListener('click', grant);
 $('save').addEventListener('click', savePage);
 $('open').addEventListener('click', openShelf);
+$('bar-toggle').addEventListener('click', toggleBarSite);
 $('saved-open').addEventListener('click', openShelf);
 $('saved-note').addEventListener('click', openShelf);
 $('note').addEventListener('keydown', (e) => {

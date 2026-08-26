@@ -11,6 +11,9 @@
  *
  * Holds no durable state and never modifies the page. The bar lives in a closed shadow
  * root attached to a single host element; removing that element removes every trace.
+ *
+ * It does READ two settings — see Enablement below. That is storage.local directly, not
+ * a message, and it is the one exception to the paragraph above it.
  */
 
 (function () {
@@ -39,6 +42,78 @@
   let button = null;
   let debounce = 0;
   let lastCapture = null;
+
+  /**
+   * Whether the bar may appear here at all.
+   *
+   * null means "not read yet" and suppresses the bar, which is the safe way round: a
+   * user who turned the bar off on this site must never see it flash in the window
+   * between document_idle and the first storage read. The cost is that a selection made
+   * inside that window (single-digit milliseconds) shows nothing.
+   */
+  let barOn = null;
+
+  /* ---------------------------------------------------------------- *
+   * Enablement
+   *
+   * Two settings in storage.local, both read straight from here rather than fetched
+   * over the message protocol. A round trip to the worker would mean waking a torn-down
+   * service worker on every page load — for a boolean — and would widen the window in
+   * which barOn is still null.
+   *
+   *   barEnabled   false turns the bar off everywhere. Absent means on.
+   *   barOffSites  site keys the bar is off for. Absent means none.
+   *
+   * An off-LIST rather than an on-list, so a site the user grants tomorrow gets the bar
+   * without anything having been written for it today.
+   * ---------------------------------------------------------------- */
+
+  /**
+   * The per-site key. Hostname minus a leading `www.`, which is exactly the string the
+   * popup shows next to the switch — what the user toggles is what they read.
+   *
+   * Duplicated from util.domainOf because this file cannot import (see the header).
+   * test/savebar.test.mjs asserts the two expressions stay identical; if they drift, a
+   * site turned off in the popup is stored under one key and matched under another —
+   * the switch reads off, the bar keeps appearing, and nothing reports a problem.
+   */
+  function siteKey() {
+    // Not named `host` — that is the shadow host element in this file.
+    const name = location.hostname;
+    return name.startsWith('www.') ? name.slice(4) : name;
+  }
+
+  /** The gate itself: master on, and this site not in the off-list. */
+  function barOnFor(values) {
+    const off = Array.isArray(values.barOffSites) ? values.barOffSites : [];
+    return values.barEnabled !== false && !off.includes(siteKey());
+  }
+
+  chrome.storage.local.get(['barEnabled', 'barOffSites'], (values) => {
+    if (chrome.runtime.lastError) {
+      // Storage unreadable is not a reason to withhold the product's main affordance.
+      barOn = true;
+      return;
+    }
+    barOn = barOnFor(values || {});
+    console.debug('[shelf:content] save bar', barOn ? 'on' : 'off', 'for', siteKey());
+  });
+
+  /**
+   * Live, so flipping the switch in the popup reaches every open tab at once. Without
+   * this the user turns the bar off, goes back to the page they were reading, selects a
+   * word, and it appears anyway — which reads as the switch not working.
+   */
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (!('barEnabled' in changes) && !('barOffSites' in changes)) return;
+    chrome.storage.local.get(['barEnabled', 'barOffSites'], (values) => {
+      if (chrome.runtime.lastError) return;
+      barOn = barOnFor(values || {});
+      // Turned off with the bar on screen — take it away now, not at the next selection.
+      if (!barOn) hide();
+    });
+  });
 
   /* ---------------------------------------------------------------- *
    * Qualification
@@ -310,6 +385,10 @@
    * ---------------------------------------------------------------- */
 
   function evaluate() {
+    if (!barOn) {
+      hide();
+      return;
+    }
     const found = qualifyingSelection();
     if (!found) {
       hide();

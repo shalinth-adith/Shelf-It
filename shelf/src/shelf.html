@@ -76,6 +76,26 @@
       <button class="link-btn" id="backup-restore" type="button">Restore from file</button>
       <input type="file" id="restore-input" accept="application/json,.json" hidden>
     </p>
+
+    <!-- Save-bar settings.
+         The master switch, and the ONLY place a per-site switch can be undone from — a
+         site turned off in the popup is invisible from everywhere except that site, so
+         without this line "why has the bar stopped appearing on that one blog" has no
+         answer anywhere in the product. -->
+    <div class="foot-settings">
+      <p class="foot-line setting-line">
+        <button class="switch" id="bar-master" type="button" role="switch" aria-checked="true">
+          <span>Save bar</span>
+          <span class="track" aria-hidden="true"><i></i></span>
+        </button>
+        <span id="bar-master-note"></span>
+      </p>
+      <p class="foot-line" id="bar-sites-line" hidden>
+        <span id="bar-sites"></span>
+        <span class="sep">·</span>
+        <button class="link-btn" id="bar-sites-clear" type="button">Turn them back on</button>
+      </p>
+    </div>
   </footer>
 </main>
 

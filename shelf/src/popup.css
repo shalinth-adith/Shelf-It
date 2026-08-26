@@ -66,3 +66,9 @@ textarea:focus { border-color: var(--accent); }
 .strip.warn { color: var(--warn); }
 .bar { height: 3px; border-radius: 2px; background: var(--rule-soft); overflow: hidden; margin-top: 8px; }
 .bar i { display: block; height: 100%; background: var(--warn); }
+
+/* The save-bar switch. Ruled off from the save controls above it — it is a setting, not
+   another way to save, and running it straight on from the buttons reads as one group. */
+.setting { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--rule-soft); }
+.setting .switch { width: 100%; justify-content: space-between; }
+.setting .tiny { padding-top: 6px; }
