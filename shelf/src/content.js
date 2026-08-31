@@ -1,5 +1,5 @@
 /**
- * Shelf — the save bar. TRD §7.1.
+ * Shelf It — the save bar. TRD §7.1.
  *
  * CLASSIC SCRIPT, NOT AN ES MODULE. Content scripts run in an isolated world with no
  * module loader for extension origins, so `import` here fails at parse time. Nothing in
@@ -263,7 +263,7 @@
 
     const label = document.createElement('span');
     label.className = 'label';
-    label.textContent = 'Shelf';
+    label.textContent = 'Shelf It';
 
     button = document.createElement('button');
     button.className = 'save';

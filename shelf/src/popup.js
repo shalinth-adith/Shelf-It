@@ -1,5 +1,5 @@
 /**
- * Shelf — toolbar popup.
+ * Shelf It — toolbar popup.
  *
  * Four states, chosen in this order:
  *   restricted  the page is one no extension may touch
@@ -156,7 +156,7 @@ function renderPage() {
  * without hunting through a settings screen. Hence: on the popup, named after the site
  * it governs, one click from the toolbar.
  *
- * Off is never a dead end. Right-click → Save selection to Shelf needs no host
+ * Off is never a dead end. Right-click → Save selection to Shelf It needs no host
  * permission and no content script (TRD §9.1), so every note below says so.
  * ================================================================== */
 
@@ -175,7 +175,7 @@ function renderBarSwitch() {
     ? 'The save bar is off everywhere. Turn it back on in the shelf.'
     : on
       ? 'Appears when you select text. Right-click saves either way.'
-      : 'Off here. Right-click → Save selection to Shelf still works.';
+      : 'Off here. Right-click → Save selection to Shelf It still works.';
 }
 
 async function toggleBarSite() {

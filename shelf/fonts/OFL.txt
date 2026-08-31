@@ -1,4 +1,4 @@
-Shelf bundles one typeface, under the SIL Open Font License v1.1.
+Shelf It bundles one typeface, under the SIL Open Font License v1.1.
 
 Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)
 

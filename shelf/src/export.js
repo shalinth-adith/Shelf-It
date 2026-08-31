@@ -1,5 +1,5 @@
 /**
- * Shelf — static HTML export. TRD §12, PRD §8.4.
+ * Shelf It — static HTML export. TRD §12, PRD §8.4.
  *
  * Pure: clips in, HTML string out. No DOM, no I/O, no clock — which is what makes the
  * determinism test in test/export.test.mjs meaningful, and what lets the whole thing run
@@ -169,7 +169,7 @@ render('');
  * @returns {string}
  */
 export function buildExportHtml(clips, options = {}) {
-  const title = options.title || 'Shelf';
+  const title = options.title || 'Shelf It';
   const sorted = [...clips].sort((a, b) => (b.savedAt - a.savedAt) || (a.id < b.id ? -1 : 1));
   const payload = sorted.map(publicShape);
   const sites = domainTally(sorted).length;
@@ -199,7 +199,7 @@ export function buildExportHtml(clips, options = {}) {
 <main class="wrap" id="list"></main>
 <footer class="wrap">
 This file is self-contained. It makes no network requests, loads nothing remotely, and
-works offline from disk. Exported from Shelf, a local-first clipper.${options.footerNote ? '<br>' + escapeHtml(options.footerNote) : ''}
+works offline from disk. Exported from Shelf It, a local-first clipper.${options.footerNote ? '<br>' + escapeHtml(options.footerNote) : ''}
 </footer>
 <script type="application/json" id="shelf-data">${inlineJson(payload)}</script>
 <script>${SCRIPT}</script>

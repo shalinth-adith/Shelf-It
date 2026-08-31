@@ -1,4 +1,4 @@
-# Shelf
+# Shelf It
 
 **Keep every passage worth keeping — on your own machine.**
 
@@ -44,7 +44,7 @@ Chrome: `chrome://extensions` → enable **Developer mode** → **Load unpacked*
 `shelf/`.
 
 Safari: `xcrun safari-web-extension-converter shelf/ --project-location ../shelf-safari
---app-name Shelf --macos-only`, then Safari → Develop → **Allow Unsigned Extensions**
+--app-name "Shelf It" --macos-only`, then Safari → Develop → **Allow Unsigned Extensions**
 (resets every quit).
 
 ## Your data

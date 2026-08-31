@@ -1,7 +1,7 @@
 /**
  * The save bar's off switch.
  *
- * The bar is the one part of Shelf that appears uninvited on someone else's page, so the
+ * The bar is the one part of Shelf It that appears uninvited on someone else's page, so the
  * ability to turn it off is not a preference — it is the thing that keeps PRD principle 5
  * true. Every failure mode below is silent: the switch reads as off while the bar keeps
  * appearing, or the bar flashes on a site the user turned it off for, and nothing errors.
@@ -112,7 +112,7 @@ test('storage failure leaves the bar on', () => {
  * ------------------------------------------------------------------ */
 
 test('both switches say what still works when the bar is off', () => {
-  // Right-click → Save selection to Shelf needs no content script and no host permission,
+  // Right-click → Save selection to Shelf It needs no content script and no host permission,
   // so switching the bar off costs the user nothing but the button. Copy that omits this
   // turns a preference into "I have disabled the extension".
   assert.match(popupJs, /Right-click/, 'the popup switch must name the fallback');

@@ -76,10 +76,10 @@ test('the backup file contains no timestamp of its own', () => {
 test('parse never throws, and says which problem it is', () => {
   const cases = [
     ['not json at all',                       /valid JSON/],
-    ['{"format":"something-else"}',           /not a Shelf backup/],
+    ['{"format":"something-else"}',           /not a Shelf It backup/],
     ['{"format":"shelf-backup"}',             /no clips/],
-    ['[]',                                    /not a Shelf backup/],
-    ['null',                                  /not a Shelf backup/],
+    ['[]',                                    /not a Shelf It backup/],
+    ['null',                                  /not a Shelf It backup/],
   ];
   for (const [input, expected] of cases) {
     const result = parseBackupJson(input);
@@ -127,16 +127,16 @@ test('the file is human-readable', () => {
 test('the backup pair covers both failure modes', () => {
   // PRD principle 1: "plain JSON and readable HTML ... if this is abandoned tomorrow,
   // nothing is lost." The JSON alone only covers losing the machine. It does not cover
-  // losing Shelf — which is exactly what happened to Pocket's users, and the reason this
+  // losing Shelf It — which is exactly what happened to Pocket's users, and the reason this
   // product exists.
   assert.notEqual(BACKUP_FILENAME, BACKUP_HTML_FILENAME);
   assert.match(BACKUP_FILENAME, /\.json$/);
   assert.match(BACKUP_HTML_FILENAME, /\.html$/);
 });
 
-test('the readable copy is legible with no Shelf and no server', () => {
+test('the readable copy is legible with no Shelf It and no server', () => {
   const clips = [clip({ text: 'A collection is not a hoard.', note: 'stewardship' })];
-  const html = buildExportHtml(clips, { title: 'Shelf — full archive' });
+  const html = buildExportHtml(clips, { title: 'Shelf It — full archive' });
 
   // The passage, its note, its source and its date must all be visible as plain text or
   // reconstructible from the payload — not locked behind an app that may not exist.
@@ -152,7 +152,7 @@ test('the readable copy carries the whole library, not just marked clips', () =>
   // The share export defaults to isPublic only. The archive copy must not — a backup
   // that silently omits unmarked clips is worse than no backup.
   const clips = [clip({ id: 'a', isPublic: false }), clip({ id: 'b', isPublic: true })];
-  const html = buildExportHtml(clips, { title: 'Shelf — full archive' });
+  const html = buildExportHtml(clips, { title: 'Shelf It — full archive' });
   assert.match(html, /2 passages/);
 });
 
@@ -197,7 +197,7 @@ test('exactly one control in the shelf page produces an export', () => {
 
 test('the backup group never offers a second readable download', () => {
   // The readable HTML copy still exists — writeBackup() puts it in the backup folder
-  // beside the JSON, which is the "Shelf no longer exists" case. What must not come back
+  // beside the JSON, which is the "Shelf It no longer exists" case. What must not come back
   // is a BUTTON for it, duplicating the export.
   const html = readFileSync('shelf/src/shelf.html', 'utf8');
   assert.doesNotMatch(html, /id="backup-read"/,
@@ -208,7 +208,7 @@ test('the backup group never offers a second readable download', () => {
 
 test('the readable copy still travels with the folder backup', () => {
   // Deleting the button must not have deleted the file. This is the half of PRD
-  // principle 1 that survives Shelf itself disappearing.
+  // principle 1 that survives Shelf It disappearing.
   const shelf = readFileSync('shelf/src/shelf.js', 'utf8');
   assert.match(shelf, /writeBackup\(handle, buildBackupJson\(state\.clips\), html\)/,
     'runBackup must still write the JSON and the HTML as a pair');

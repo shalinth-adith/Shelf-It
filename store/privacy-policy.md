@@ -1,15 +1,15 @@
-Privacy Policy — Shelf
+Privacy Policy — Shelf It
 
 Last updated: 2026-08-21
 
-Shelf does not collect any data.
+Shelf It does not collect any data.
 
-Shelf makes no network requests of any kind. It has no server, no account system, no
+Shelf It makes no network requests of any kind. It has no server, no account system, no
 analytics, no telemetry, and no crash reporting. It does not load fonts, icons, scripts
 or any other resource from a remote location — everything it needs is contained in the
 extension package.
 
-What Shelf stores, and where
+What Shelf It stores, and where
 
 Passages you save, along with their source URL, page title, the time you saved them, and
 any note or colour you add, are stored in your browser's local IndexedDB storage on your
@@ -21,19 +21,19 @@ your machine. None of this is transmitted anywhere.
 
 Files you create
 
-If you set up a backup folder, Shelf writes two files into the folder you chose, on your
-own machine. If you export, Shelf creates a file in your downloads folder. Shelf never
+If you set up a backup folder, Shelf It writes two files into the folder you chose, on your
+own machine. If you export, Shelf It creates a file in your downloads folder. Shelf It never
 uploads these or any other file. What happens to them afterwards is entirely up to you.
 
 Site access
 
-Shelf requests access to a website only when you explicitly grant it, one site at a time.
+Shelf It requests access to a website only when you explicitly grant it, one site at a time.
 It never requests access to all sites, and never requests any site access at install.
 Granted access is used only to display the save bar when you select text.
 
 Deleting your data
 
-Removing the extension deletes everything Shelf has stored in your browser. Files you
+Removing the extension deletes everything Shelf It has stored in your browser. Files you
 exported or backed up to your own folders are yours and are not touched.
 
 Contact: <your email>

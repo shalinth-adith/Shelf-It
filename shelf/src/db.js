@@ -1,5 +1,5 @@
 /**
- * Shelf — IndexedDB wrapper.
+ * Shelf It — IndexedDB wrapper.
  *
  * The only module that talks to IndexedDB. Imported by the service worker (which owns
  * every write) and by the shelf page (which reads directly). content.js never imports

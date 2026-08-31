@@ -1,5 +1,5 @@
 /**
- * Shelf — the library page.
+ * Shelf It — the library page.
  *
  * Reads IndexedDB directly (TRD §4); only writes that create clips go through the
  * worker. Note edits and deletes are written from here, because they originate here and
@@ -603,7 +603,7 @@ function runExport() {
   const list = scope === 'all' ? state.clips : state.clips.filter((c) => c.isPublic);
   if (!list.length) return;
 
-  const html = buildExportHtml(list, { title: 'Shelf' });
+  const html = buildExportHtml(list, { title: 'Shelf It' });
   // A Blob URL, not a data: URL — a data: URL of a large library can exceed what the
   // browser will accept in an href, and fails by doing nothing.
   const blob = new Blob([html], { type: 'text/html' });
@@ -648,12 +648,12 @@ async function autoBackup() {
 async function runBackup(handle, why) {
   try {
     // The pair, not just the JSON. PRD principle 1 — the JSON covers "I lost my laptop",
-    // the HTML covers "Shelf no longer exists", and only the second is the scenario this
+    // the HTML covers "Shelf It no longer exists", and only the second is the scenario this
     // product was built in response to.
     const html = buildExportHtml(state.clips, {
-      title: 'Shelf — full archive',
+      title: 'Shelf It — full archive',
       footerNote:
-        `A complete copy of the library, readable without Shelf. ` +
+        `A complete copy of the library, readable without Shelf It. ` +
         `${BACKUP_FILENAME} beside it restores everything back into the extension.`,
     });
     const { written } = await writeBackup(handle, buildBackupJson(state.clips), html);
@@ -719,7 +719,7 @@ async function restoreFromFile(file) {
  * How to name the backup target.
  *
  * A directory handle's `name` is the folder. If a FILE handle ever ends up stored here
- * the message would name a file and read as though Shelf were writing into it, so the
+ * the message would name a file and read as though Shelf It were writing into it, so the
  * kind is checked rather than assumed — the footer is the only place a user would ever
  * notice the backup target is wrong.
  */
@@ -759,7 +759,7 @@ async function renderBackupStatus() {
       'This browser cannot write to a folder. Use Download backup file regularly instead.';
   } else {
     status.textContent =
-      'No backup folder set — pick any folder and Shelf writes two files into it. ' +
+      'No backup folder set — pick any folder and Shelf It writes two files into it. ' +
       'Lose this machine without one and the clips go with it.';
   }
 
@@ -775,8 +775,8 @@ async function renderBackupStatus() {
     ? `${state.clips.length} clips, still no backup`
     : 'No backup yet';
   $('nobackup-body').textContent = overdue
-    ? 'A week of saving with nothing outside this browser. Point Shelf at a Dropbox or iCloud folder and it backs itself up — that also gets you sync between machines.'
-    : 'Your clips live only in this browser. Point Shelf at a folder and it keeps a copy for you.';
+    ? 'A week of saving with nothing outside this browser. Point Shelf It at a Dropbox or iCloud folder and it backs itself up — that also gets you sync between machines.'
+    : 'Your clips live only in this browser. Point Shelf It at a folder and it keeps a copy for you.';
 }
 
 /* ================================================================== *
@@ -812,7 +812,7 @@ function renderBarSwitch() {
   $('bar-master').setAttribute('aria-checked', String(barEnabled));
   $('bar-master-note').textContent = barEnabled
     ? 'Appears when you select text on a site you have allowed.'
-    : 'Off everywhere. Right-click → Save selection to Shelf still works.';
+    : 'Off everywhere. Right-click → Save selection to Shelf It still works.';
 
   // Hidden while the master is off: per-site exceptions to a thing that is off
   // everywhere are noise, and reading them as live settings would be wrong.

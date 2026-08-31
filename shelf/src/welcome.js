@@ -1,5 +1,5 @@
 /**
- * Shelf — first run. PRD §9.
+ * Shelf It — first run. PRD §9.
  *
  * Four screens, and only one of them is load-bearing.
  *
@@ -66,7 +66,7 @@ async function chooseFolder() {
 
     const clips = await db.getAllClips();
     await writeBackup(handle, buildBackupJson(clips),
-      buildExportHtml(clips, { title: 'Shelf — full archive' }));
+      buildExportHtml(clips, { title: 'Shelf It — full archive' }));
     await db.setMeta('lastBackupAt', Date.now());
 
     $('backup-status').textContent =
@@ -115,7 +115,7 @@ async function saveFirstClip() {
     urlHash: await urlHash(canonicalUrl),
     normalizeVersion: NORMALIZE_VERSION,
     domain: 'shelf',
-    title: 'Welcome to Shelf',
+    title: 'Welcome to Shelf It',
     context: { prefix: '', suffix: '' },
     seconds: null,
     savedAt: Date.now(),

@@ -1,5 +1,5 @@
 /**
- * Shelf — pure helpers. No DOM, no chrome.*, no I/O.
+ * Shelf It — pure helpers. No DOM, no chrome.*, no I/O.
  *
  * Everything here is a pure function of its arguments, which is what makes the fixture
  * table in test/util.test.mjs meaningful. Keep it that way — the moment a helper reads
@@ -246,7 +246,7 @@ export function escapeHtml(s) {
  */
 export function toMarkdown(clip) {
   const lines = [];
-  // Horizontal whitespace collapsed, line breaks kept. Clips saved by Shelf are already
+  // Horizontal whitespace collapsed, line breaks kept. Clips saved by Shelf It are already
   // fully collapsed by buildClip, so this only matters for a restored backup — and
   // parseBackupJson accepts any well-formed JSON, including hand-edited files. Flattening
   // here would be harmless; NOT prefixing every line would leave half the passage

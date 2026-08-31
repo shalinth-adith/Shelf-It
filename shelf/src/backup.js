@@ -1,5 +1,5 @@
 /**
- * Shelf — backup and restore. TRD §13.
+ * Shelf It — backup and restore. TRD §13.
  *
  * The pure half (serialise, parse, validate) is separated from the File System Access
  * half deliberately: the pure functions are tested in Node, and the browser half is
@@ -21,9 +21,9 @@ export const BACKUP_VERSION = 1;
  *
  *   .json  machine-readable. Restores the library exactly, including the fields an
  *          export withholds. Useless to a person with a text editor.
- *   .html  human-readable. Opens in any browser, forever, with no Shelf and no server.
+ *   .html  human-readable. Opens in any browser, forever, with no Shelf It and no server.
  *
- * The JSON alone covers "I lost my laptop". It does not cover "Shelf is gone" — and that
+ * The JSON alone covers "I lost my laptop". It does not cover "Shelf It is gone" — and that
  * is the scenario this product was built in response to, since Pocket's users were left
  * holding exports of a service that no longer existed. A backup you cannot read without
  * the dead application is not an archive, it is a hostage.
@@ -80,11 +80,11 @@ export function parseBackupJson(text) {
   } catch {
     return { ok: false, error: 'That file is not valid JSON.' };
   }
-  if (!data || typeof data !== 'object') return { ok: false, error: 'That file is not a Shelf backup.' };
-  if (data.format !== 'shelf-backup') return { ok: false, error: 'That file is not a Shelf backup.' };
+  if (!data || typeof data !== 'object') return { ok: false, error: 'That file is not a Shelf It backup.' };
+  if (data.format !== 'shelf-backup') return { ok: false, error: 'That file is not a Shelf It backup.' };
   if (!Array.isArray(data.clips)) return { ok: false, error: 'That backup has no clips in it.' };
   if (data.version > BACKUP_VERSION) {
-    return { ok: false, error: `That backup was written by a newer version of Shelf (v${data.version}).` };
+    return { ok: false, error: `That backup was written by a newer version of Shelf It (v${data.version}).` };
   }
 
   // Drop anything unusable rather than failing the whole restore. A backup with one bad

@@ -1,5 +1,5 @@
 /**
- * Shelf — service worker.
+ * Shelf It — service worker.
  *
  * Owns every write (TRD §4). The shelf page reads IndexedDB directly, but nothing else
  * writes to it: content.js and the popup send messages here instead.
@@ -200,7 +200,7 @@ async function installContextMenu() {
 
   createMenu({
     id: MENU_ID,
-    title: 'Save selection to Shelf',
+    title: 'Save selection to Shelf It',
     contexts: ['selection'],
   });
 
