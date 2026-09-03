@@ -22,3 +22,9 @@ TRD.md
 BUILD_PLAN.md
 DECISIONS.md
 STORE_SUBMISSION.md
+
+# Store screenshots are generated from local captures
+store/screenshots/
+
+# Python bytecode from tools/
+__pycache__/
