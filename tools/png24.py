@@ -10,7 +10,11 @@ Converting via JPEG would strip alpha too, but at the cost of compression ringin
 text, which is the one artifact a listing for a reading tool cannot afford. So this decodes
 and re-encodes losslessly instead. No third-party dependency: zlib and struct are enough.
 
-Usage:  png24.py in.png out.png
+Transparent pixels are composited onto a background rather than having their alpha simply
+discarded. Dropping the channel leaves whatever RGB happened to sit under a transparent
+pixel — for a rounded tile, that is the encoder's fill, and the corners come out black.
+
+Usage:  png24.py in.png out.png [background-hex]     (default FFFFFF)
 """
 import struct, sys, zlib
 
@@ -70,7 +74,7 @@ def _chunk(typ, data):
             + struct.pack(">I", zlib.crc32(typ + data) & 0xFFFFFFFF))
 
 
-def to_rgb(src, dst):
+def to_rgb(src, dst, bg=(0xFF, 0xFF, 0xFF)):
     buf = open(src, "rb").read()
     idat = bytearray()
     hdr = None
@@ -88,13 +92,24 @@ def to_rgb(src, dst):
 
     px = _unfilter(zlib.decompress(bytes(idat)), w, h, 4)
 
-    # Drop every fourth byte. Alpha in a screen capture is fully opaque, so discarding it
-    # changes no visible pixel — this is a channel removal, not a composite.
+    # Composite onto the background. For a fully opaque source — a screen capture — this
+    # reproduces every pixel exactly; for anything with real transparency it is the
+    # difference between a clean matte and black corners.
     rgb = bytearray()
     for y in range(h):
         row = px[y * w * 4:(y + 1) * w * 4]
         rgb += b"\x00"                # filter 0 (None): smallest code, no scanline cost
-        rgb += bytes(b for i in range(0, len(row), 4) for b in row[i:i + 3])
+        out = bytearray()
+        for i in range(0, len(row), 4):
+            a = row[i + 3]
+            if a == 255:
+                out += row[i:i + 3]
+            elif a == 0:
+                out += bytes(bg)
+            else:
+                t = a / 255.0
+                out += bytes(round(row[i + c] * t + bg[c] * (1 - t)) for c in range(3))
+        rgb += out
 
     out = bytearray(SIG)
     out += _chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
@@ -105,5 +120,9 @@ def to_rgb(src, dst):
 
 
 if __name__ == "__main__":
-    changed, w, h = to_rgb(sys.argv[1], sys.argv[2])
+    bg = (0xFF, 0xFF, 0xFF)
+    if len(sys.argv) > 3:
+        v = sys.argv[3].lstrip("#")
+        bg = (int(v[0:2], 16), int(v[2:4], 16), int(v[4:6], 16))
+    changed, w, h = to_rgb(sys.argv[1], sys.argv[2], bg)
     print(f"{'converted' if changed else 'already 24-bit'}  {w}x{h}")

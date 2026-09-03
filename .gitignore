@@ -28,3 +28,4 @@ store/screenshots/
 
 # Python bytecode from tools/
 __pycache__/
+store/icons/
