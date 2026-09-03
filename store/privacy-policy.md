@@ -1,6 +1,6 @@
 Privacy Policy — Shelf It
 
-Last updated: 2026-08-21
+Last updated: 2026-09-03
 
 Shelf It does not collect any data.
 
@@ -36,4 +36,4 @@ Deleting your data
 Removing the extension deletes everything Shelf It has stored in your browser. Files you
 exported or backed up to your own folders are yours and are not touched.
 
-Contact: <your email>
+Contact: shalinth.adith@outlook.com
